@@ -146,16 +146,16 @@ manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='gre
     
     ggplot2::ggplot(data,aes(x=cumulative_pos,y=y,color=color,shape=shape,fill=fill))+
         geom_point()+
-        geom_hline(aes(yintercept = significance_threshold, color = 2)) + 
         theme_classic()+
         scale_x_continuous(limits=c(0,xmax),expand=c(0.01,0),breaks=x_breaks,
                            labels=names(x_breaks),name='Chromosome')+
         scale_y_continuous(expand=c(0.01,0),name=expression('-log10(P-value)'))+
         scale_color_manual(values=color_map,guide='none')+
         scale_fill_manual(values = color_map, guide = 'none') +
+        scale_shape_identity() + 
         geom_hline(yintercept = -log10(significance_threshold), 
-               linetype = "dashed", color = "red") + 
-        scale_shape_identity()
+               linetype = "dashed", color = "red") 
+
 
  
 }
