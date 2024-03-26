@@ -151,8 +151,8 @@ manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='gre
         scale_x_continuous(limits=c(0,xmax),expand=c(0.01,0),breaks=x_breaks,
                            labels=names(x_breaks),name='Chromosome')+
         scale_y_continuous(expand=c(0.01,0),name=expression('-log10(P-value)'))+
-        #scale_color_manual(values=color_map,guide='none')+
-        #scale_fill_manual(values = color_map, guide = 'none') +
+        scale_color_manual(values=color_map,guide='none')+
+        scale_fill_manual(values = color_map, guide = 'none') +
         geom_hline(yintercept = -log10(significance_threshold), 
                linetype = "dashed", color = "red") + 
         scale_shape_identity()
