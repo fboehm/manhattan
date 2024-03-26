@@ -128,7 +128,7 @@ add_fill = function(data){
 #' @return a ggplot object that makes a Manhattan plot
 #' @details
 #' \code{manhattan} is a wrapper around \code{ggplot}. It uses a few tricks to transform a genomic axis to a scatterplot axis. For instance, chr2:1 would be the length of chromosome 1 plus 1, chr3:1 would be chromosome 1 plus chromosome 2 plus 1, so on and so forth. It is important to specify the genomic build (e.g. hg19) so that `manhattan` can make the correct transformation. It positions the chromosome labels on the x-axis according to these transformations.
-manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='grey', significance_threshold = 8
+manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='grey', significance_threshold = 1E-6
                   
                   ){
     data=gwas
@@ -152,6 +152,7 @@ manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='gre
                            labels=names(x_breaks),name='Chromosome')+
         scale_y_continuous(expand=c(0.01,0),name=expression('-log10(P-value)'))+
         scale_color_manual(values=color_map,guide='none')+
-        scale_fill_manual(values = color_map, guide = 'none')#+
+        scale_fill_manual(values = color_map, guide = 'none') +
+        annotate("hline", yintercept = -log10(significance_threshold), linetype = "dashed", color = "red")
         #scale_shape_identity()
 }
