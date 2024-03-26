@@ -152,6 +152,6 @@ manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='gre
                            labels=names(x_breaks),name='Chromosome')+
         scale_y_continuous(expand=c(0.01,0),name=expression('-log10(P-value)'))+
         scale_color_manual(values=color_map,guide='none')+
-        scale_fill_manual(values = color_map, guide = 'none')+
-        scale_shape_identity()
+        scale_fill_manual(values = color_map, guide = 'none')#+
+        #scale_shape_identity()
 }
