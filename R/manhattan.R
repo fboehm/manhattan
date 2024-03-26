@@ -153,7 +153,7 @@ manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='gre
         scale_y_continuous(expand=c(0.01,0),name=expression('-log10(P-value)'))+
         #scale_color_manual(values=color_map,guide='none')+
         #scale_fill_manual(values = color_map, guide = 'none') +
-        geom_hline(aes(x = min(cumulative_pos, na.rm = TRUE), xend = max(cumulative_pos, na.rm = TRUE), y = -log10(significance_threshold), yend = -log10(significance_threshold)), 
+        geom_hline(yintercept = -log10(significance_threshold), 
                linetype = "dashed", color = "red") + 
         scale_shape_identity()
 
