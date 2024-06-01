@@ -83,17 +83,6 @@ add_cumulative_pos=function(data,build=c('hg18','hg19','hg38')){
     return(data)
 }
 
-add_color=function(data,color1='black',color2='grey'){
-    if ('color'%in%colnames(data)){
-        user_color=data$color
-    } else {
-        user_color=rep(NA,nrow(data))
-    }
-    
-    data$color=ifelse(data$chrom%in%paste0('chr',seq(1,22,2)),color1,color2)
-    data$color=ifelse(is.na(user_color),data$color,user_color)
-    return(data)
-}
 
 add_shape = function(data,shape=16){
     if ('shape'%in% colnames(data)){
@@ -108,7 +97,7 @@ add_shape = function(data,shape=16){
 }
 
 add_fill = function(data){
-    if ('fill'%in%colnames(data)){
+    if ('fill' %in% colnames(data)){
         NULL
     } else {
         data$fill = data$color
@@ -117,10 +106,10 @@ add_fill = function(data){
 }
 
 #' Make a Manhattan plot
-#' @param gwas A GWAS study. Must have chrom, pos, and y columns
+#' @param gwas A data frame (or tibble) with results from a GWAS study. Must have chrom, pos, color, and y (typically negative log10 p values) columns
 #' @param build Genomic build. Currently supports hg18, hg19, and hg38
-#' @param color1 Color for odd-numbered chromosomes
-#' @param color2 Color for even-numbered chromosomes
+#' @param significance_color Color of the horizontal line indicating genome-wide significance
+#' @param significance_threshold P-value threshold for genome-wide significance
 #' @example
 #' data(cad_gwas)
 #' cad_gwas$y=-log10(cad_gwas$pval)
@@ -128,34 +117,43 @@ add_fill = function(data){
 #' @return a ggplot object that makes a Manhattan plot
 #' @details
 #' \code{manhattan} is a wrapper around \code{ggplot}. It uses a few tricks to transform a genomic axis to a scatterplot axis. For instance, chr2:1 would be the length of chromosome 1 plus 1, chr3:1 would be chromosome 1 plus chromosome 2 plus 1, so on and so forth. It is important to specify the genomic build (e.g. hg19) so that `manhattan` can make the correct transformation. It positions the chromosome labels on the x-axis according to these transformations.
-manhattan=function(gwas,build=c('hg18','hg19','hg38'),color1='black',color2='grey', significance_threshold = 1E-6
-                  
-                  ){
+manhattan <- function(gwas, 
+    build=c('hg18','hg19','hg38'), 
+    significance_color, 
+    significance_threshold = 5E-8
+    ){
     data=gwas
     build=match.arg(build)
-    data=add_cumulative_pos(data,build)
-    data=add_color(data,color1 = color1,color2 = color2)
-    data=add_shape(data,shape=16)
+    data=add_cumulative_pos(data, build)
+#    data=add_color(data,color1 = color1,color2 = color2)
+#   instead of defining color column here, we require input data frame to have a color column
+    data=add_shape(data, shape=16)
     data=add_fill(data)
     chrom_lengths=get_chrom_lengths(build)
     xmax=get_total_length(chrom_lengths)
     x_breaks=get_x_breaks(chrom_lengths)
-    
     color_map=unique(data$color)
     names(color_map)=unique(data$color)
     
-    ggplot2::ggplot(data,aes(x=cumulative_pos,y=y,color=color,shape=shape,fill=fill))+
-        geom_point()+
-        theme_classic()+
-        scale_x_continuous(limits=c(0,xmax),expand=c(0.01,0),breaks=x_breaks,
-                           labels=names(x_breaks),name='Chromosome')+
-        scale_y_continuous(expand=c(0.01,0),name=expression('-log10(P-value)'))+
-        scale_color_manual(values=color_map,guide='none')+
-        scale_fill_manual(values = color_map, guide = 'none') +
-        scale_shape_identity() + 
-        geom_hline(yintercept = -log10(significance_threshold), 
-               linetype = "dashed", color = "red") 
-
-
- 
+    data |>
+        ggplot2::ggplot(ggplot2::aes(x=cumulative_pos,
+        y = y,
+        color = color,
+        shape = shape,
+        fill = fill)) +
+        ggplot2::geom_point() +
+        ggplot2::theme_classic() +
+        ggplot2::scale_x_continuous(limits = c(0, xmax),
+            expand=c(0.01, 0),
+            breaks=x_breaks,
+            labels=names(x_breaks),
+            name='Chromosome') +
+        ggplot2::scale_y_continuous(expand = c(0.01, 0),
+            name = expression('-log10(P-value)')) +
+        ggplot2::scale_color_manual(values = color_map, guide='none')+
+        ggplot2::scale_fill_manual(values = color_map, guide = 'none') +
+        ggplot2::scale_shape_identity() + 
+        ggplot2::geom_hline(yintercept = -log10(significance_threshold), 
+               linetype = "dashed", 
+               color = significance_color) 
 }
