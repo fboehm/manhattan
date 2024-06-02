@@ -118,15 +118,12 @@ prepare_gwas_data <- function(dat,
 #   instead of defining color column here, we require input data frame to have a color column
     data=add_shape(data, shape=16)
     data=add_fill(data)
-    chrom_lengths=get_chrom_lengths(build)
-    xmax=get_total_length(chrom_lengths)
-    x_breaks=get_x_breaks(chrom_lengths)
     return(data)
 }
 
 
 #' Make a Manhattan plot
-#' @param dat A data frame (or tibble) with results from a GWAS study. Must have chrom, pos, color, and y (typically negative log10 p values) columns
+#' @param dat A data frame (or tibble) with results from a GWAS study. Must have chrom, pos, color, y (typically negative log10 p values), cumulative_pos, shape columns
 #' @param significance_color Color of the horizontal line indicating genome-wide significance
 #' @param significance_threshold P-value threshold for genome-wide significance
 #' @export
@@ -143,6 +140,9 @@ manhattan <- function(dat,
     ){
     color_map=unique(dat$color)
     names(color_map)=unique(dat$color)
+    chrom_lengths=get_chrom_lengths(build)
+    xmax=get_total_length(chrom_lengths)
+    x_breaks=get_x_breaks(chrom_lengths)
 
     dat |>
         ggplot2::ggplot(ggplot2::aes(x=cumulative_pos,
