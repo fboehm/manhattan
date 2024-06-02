@@ -105,26 +105,15 @@ add_fill = function(data){
     return(data)
 }
 
-#' Make a Manhattan plot
-#' @param gwas A data frame (or tibble) with results from a GWAS study. Must have chrom, pos, color, and y (typically negative log10 p values) columns
+#' Prepare & organize data frame for input to plot function
+#' @param dat A data frame (or tibble) with results from a GWAS study. Must have chrom, pos, color, and y (typically negative log10 p values) columns
 #' @param build Genomic build. Currently supports hg18, hg19, and hg38
-#' @param significance_color Color of the horizontal line indicating genome-wide significance
-#' @param significance_threshold P-value threshold for genome-wide significance
-#' @example
-#' data(cad_gwas)
-#' cad_gwas$y=-log10(cad_gwas$pval)
-#' manhattan(cad_gwas,build='hg18')
-#' @return a ggplot object that makes a Manhattan plot
-#' @details
-#' \code{manhattan} is a wrapper around \code{ggplot}. It uses a few tricks to transform a genomic axis to a scatterplot axis. For instance, chr2:1 would be the length of chromosome 1 plus 1, chr3:1 would be chromosome 1 plus chromosome 2 plus 1, so on and so forth. It is important to specify the genomic build (e.g. hg19) so that `manhattan` can make the correct transformation. It positions the chromosome labels on the x-axis according to these transformations.
-manhattan <- function(gwas, 
-    build=c('hg18','hg19','hg38'), 
-    significance_color, 
-    significance_threshold = 5E-8
-    ){
-    data=gwas
+#' @export
+prepare_gwas_data <- function(dat,
+    build=c('hg18','hg19','hg38')
+){
     build=match.arg(build)
-    data=add_cumulative_pos(data, build)
+    data=add_cumulative_pos(dat, build)
 #    data=add_color(data,color1 = color1,color2 = color2)
 #   instead of defining color column here, we require input data frame to have a color column
     data=add_shape(data, shape=16)
@@ -132,10 +121,30 @@ manhattan <- function(gwas,
     chrom_lengths=get_chrom_lengths(build)
     xmax=get_total_length(chrom_lengths)
     x_breaks=get_x_breaks(chrom_lengths)
-    color_map=unique(data$color)
-    names(color_map)=unique(data$color)
-    
-    data |>
+    return(data)
+}
+
+
+#' Make a Manhattan plot
+#' @param dat A data frame (or tibble) with results from a GWAS study. Must have chrom, pos, color, and y (typically negative log10 p values) columns
+#' @param significance_color Color of the horizontal line indicating genome-wide significance
+#' @param significance_threshold P-value threshold for genome-wide significance
+#' @export
+#' @example
+#' data(cad_gwas)
+#' cad_gwas$y=-log10(cad_gwas$pval)
+#' manhattan(cad_gwas,build='hg18')
+#' @return a ggplot object that makes a Manhattan plot
+#' @details
+#' \code{manhattan} is a wrapper around \code{ggplot}. It uses a few tricks to transform a genomic axis to a scatterplot axis. For instance, chr2:1 would be the length of chromosome 1 plus 1, chr3:1 would be chromosome 1 plus chromosome 2 plus 1, so on and so forth. It is important to specify the genomic build (e.g. hg19) so that `manhattan` can make the correct transformation. It positions the chromosome labels on the x-axis according to these transformations.
+manhattan <- function(dat, 
+    significance_color,
+    significance_threshold
+    ){
+    color_map=unique(dat$color)
+    names(color_map)=unique(dat$color)
+
+    dat |>
         ggplot2::ggplot(ggplot2::aes(x=cumulative_pos,
         y = y,
         color = color,
