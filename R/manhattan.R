@@ -135,7 +135,7 @@ prepare_gwas_data <- function(dat,
 #' \code{manhattan} is a wrapper around \code{ggplot}. It uses a few tricks to transform a genomic axis to a scatterplot axis. For instance, chr2:1 would be the length of chromosome 1 plus 1, chr3:1 would be chromosome 1 plus chromosome 2 plus 1, so on and so forth. It is important to specify the genomic build (e.g. hg19) so that `manhattan` can make the correct transformation. It positions the chromosome labels on the x-axis according to these transformations.
 manhattan <- function(dat, 
     significance_color,
-    significance_threshold,
+    significance_threshold
     ){
     color_map=unique(dat$color)
     names(color_map)=unique(dat$color)
